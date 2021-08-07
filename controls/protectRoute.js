@@ -1,16 +1,19 @@
-const jwt = require(jsonwebtoken)
+const jwt = require('jsonwebtoken')
 const User = require('../models/user.model')
+
 exports.restrictTo = (...roles)=>{
    
-    (req, res)=>{
+    return (req, res, next)=>{
         if (!roles.includes(req.user.role)){
-          return new Error("Unauthorized User for this Action!")
+          res.json({
+           message: new Error("Unauthorized User for this Action!")
+          }); 
         }
+        next();
     }
-
 }
 
-exports.ProtectRoute = async (req, res, cb)=>{
+exports.protectRoute = async (req, res, next)=>{
     let token = '';
     let decoded;
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')){
@@ -20,16 +23,21 @@ exports.ProtectRoute = async (req, res, cb)=>{
     if (token){
          await User.findById({id: decoded._id}, (error, result)=>{
              if(error) throw error
+            /* res.json({
+                status: " failure",
+                message: "YOu are not Logged In"
+            })*/
              else{
-                cb();
+                req.user = result; 
              }
          })
-        
+        next();
     }
     else {
         res.json({
-            status: " failure",
+            status: "failure",
             message: "YOu are not Logged In"
         })
+        next();
     }
 }

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const crypto = require('crypto');
  const userSchema = new mongoose.Schema({
     firstname: {
         required: true,
@@ -13,10 +13,6 @@ const mongoose = require('mongoose');
         required: true,
         type: String
     },
-    studId:{
-        required: false,
-        type: String
-    },
     phone: {
         required: false,
         type: String
@@ -24,14 +20,6 @@ const mongoose = require('mongoose');
     username:{
         required: true,
         type: String,
-    },
-    department:{
-        required: true,
-        type: String
-    },
-    year: {
-        required: false,
-        type: Number,
     },
     password: {
         required: true,
@@ -41,7 +29,10 @@ const mongoose = require('mongoose');
         required: true,
         default: true,
         type: Boolean
-    }, 
+    },
+    passwordResetToken : String,
+    passwordResetExpires: Date,
+    passwordChangedAt: Date,
     role: {
         type: String,
         enum: ['super-admin', 'student', 'forum-admin', 'material-admin', 'info-director', 'club-president'],
@@ -49,4 +40,18 @@ const mongoose = require('mongoose');
     }
 });
 
+
+
+userSchema.methods.createPasswordResetToken = ()=>{
+    try {
+        const resetToken = crypto.randomBytes(32).toString('hex');
+        this.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex')
+        this.passwordResetExpires =  Date.now() + 10*60*1000;
+         console.log({resetToken}, this.passwordResetToken);
+        return resetToken;
+    } catch (error) {
+     console.error("Some thing wrong in the Schema Methods " +error);   
+    }
+
+}
  module.exports = new mongoose.model('users', userSchema);
