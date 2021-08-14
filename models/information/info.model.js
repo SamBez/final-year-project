@@ -10,12 +10,17 @@ const infoSchema = new mongoose.Schema({
         required: true
     },
     posted_date:{
-        type: String,
-        required: true
+        type: Date,
+        required: true,
+        default: Date.now()
     },
     file: {
         type: Buffer,
         required: false
+    },
+    userId:{
+        type: String, 
+        required: true
     }
 })
 

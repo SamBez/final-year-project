@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 
 const questionSchema = new mongoose.Schema({
     userId: {
-        type: String,
+        type: mongoose.Types.ObjectId,
         required: true
     },
     title:{
@@ -25,14 +25,14 @@ const questionSchema = new mongoose.Schema({
     }
 })
 
-questionSchema.pre('save', (next)=>{
-    if(this.no_report >= 5){
-    var userObj =  this.model('users');
-    newuserObj = new userObj({
-        'activated': false
-    }); 
-}
+//questionSchema.pre('save', (next)=>{
+  //  if(this.no_report >= 5){
+    //var userObj =  this.model('users');
+   // newuserObj = new userObj({
+      //  'activated': false
+    //}); 
+//}
 
-    next();
-})
+   // next();
+//})
 module.exports = new mongoose.model('Question', questionSchema);

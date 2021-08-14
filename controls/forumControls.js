@@ -9,10 +9,12 @@ exports.postQuestion = async (req, res, next)=>{
               userId: req.params.userId
     }
     const createdQ = await question.create(questionData, (err, result)=>{
-        if (err) throw err
+        if (err) {
+            console.log("Prob creating question")
+        }
 
         else{
-            res.question = result
+            console.log(result);
         }
     });
     if (createdQ){

@@ -30,9 +30,19 @@ const crypto = require('crypto');
         default: true,
         type: Boolean
     },
-    passwordResetToken : String,
-    passwordResetExpires: Date,
-    passwordChangedAt: Date,
+    createdAt:{
+     type: Date,
+     default: Date.now()
+    },
+    passwordResetToken: {
+      type: String
+    },
+    passwordResetExpires:{
+        type: Date
+    },
+    passwordChangedAt:{
+        type: Date
+    },
     role: {
         type: String,
         enum: ['super-admin', 'student', 'forum-admin', 'material-admin', 'info-director', 'club-president'],
@@ -42,13 +52,15 @@ const crypto = require('crypto');
 
 
 
-userSchema.methods.createPasswordResetToken = ()=>{
+userSchema.methods.createPasswordResetToken = function (){
     try {
         const resetToken = crypto.randomBytes(32).toString('hex');
         this.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex')
-        this.passwordResetExpires =  Date.now() + 10*60*1000;
-         console.log({resetToken}, this.passwordResetToken);
+        this.passwordResetExpires = Date.now() + 10*60*1000;
+         console.log({resetToken}, this.passwordResetExpires);
+         console.log(" this keyword " +this)
         return resetToken;
+        
     } catch (error) {
      console.error("Some thing wrong in the Schema Methods " +error);   
     }

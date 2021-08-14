@@ -17,20 +17,23 @@ exports.protectRoute = async (req, res, next)=>{
     let token = '';
     let decoded;
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')){
-        token = req.header.authorization.split(' ')[1]
+        token = req.headers.authorization.split(' ')[1];
         decoded = jwt.verify(token, 'secret')
+        console.log(token + " and ..............." + decoded.id);
     }
     if (token){
-         await User.findById({id: decoded._id}, (error, result)=>{
-             if(error) throw error
-            /* res.json({
+      const freshuser =  await User.findById({_id: decoded.id}, (error, result)=>{
+             if(error)  {
+             res.json({
                 status: " failure",
                 message: "YOu are not Logged In"
-            })*/
+            })}
              else{
                 req.user = result; 
              }
          })
+         req.user = freshuser;
+         console.log(req.user);
         next();
     }
     else {

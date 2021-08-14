@@ -3,7 +3,7 @@ const path = require("path");
 const jwt = require("jsonwebtoken");
 const ServError = require("../utils/ServerError");
 const nodemailer = require("nodemailer");
-const  sendmail  = require("../email");
+const sendmail = require("../email");
 const crypto = require("crypto");
 
 exports.login = async (req, res, next) => {
@@ -31,7 +31,7 @@ exports.login = async (req, res, next) => {
             },
             "secret",
             {
-              expiresIn: "10s",
+              expiresIn: "10d",
             }
           );
           res.status(200).json({
@@ -67,7 +67,7 @@ exports.signup = async (req, res, cb) => {
   if (foundUser === null) {
     try {
       const newUser = await User.create(req.body);
-      jwt.sign(
+     const token = jwt.sign(
         {
           id: newUser._id,
           studId: newUser.studId,
@@ -81,8 +81,8 @@ exports.signup = async (req, res, cb) => {
         status: "success",
         data: {
           user: newUser,
-        },
-        token,
+          token
+        }
       });
     } catch (error) {
       console.error(error);
@@ -98,6 +98,7 @@ exports.customSignup = async (req, res, cb) => {
   const newAdmin = await User.findOne({
     email: req.body.email,
   });
+  const dummyPsw = crypto.randomBytes(8).toString('hex')
   if (newAdmin) {
     res.status(201).json({
       status: "failure",
@@ -113,13 +114,12 @@ exports.customSignup = async (req, res, cb) => {
       } else {
         //EmailShit
         try {
-          
-          sendmail.sendEmail (
+          sendmail.sendEmail(
             {
               to: `${req.body.email}`,
               subject: "Hello",
               text: `Dear ${req.body.firstname}, Here is your password.
-                     Password: ${req.body.password} 
+                     Password: ${dummyPsw} 
                      please make sure to change it asap!`,
             },
             (err, result) => {
@@ -143,36 +143,69 @@ exports.customSignup = async (req, res, cb) => {
   }
 };
 exports.forgotPassword = async (req, res, next) => {
-  const user = await User.findOne({ email: req.body.email }).select("email");
+  let user = await User.findOne({ email: req.body.email });
   console.log(user);
-  if (!user){
+  if (!user) {
     res.json({
-      status: 'fail',
-      message: " No user found"
-    })
-  }
-  else {
+      status: "fail",
+      message: " No user found",
+    });
+  } else {
     let resetToken;
     try {
-       resetToken = user.createPasswordResetToken();
+      resetToken = user.createPasswordResetToken();
+      console.log("from forgotps func "+ resetToken);
+      console.log("the user obj " + user);
       await user.save();
-      
-    } catch (error) {
-      console.log("Problem");
-    }
-    try {
+      console.log(req.body.email);
+      const resetUrl = `${req.protocol}://${req.get(
+        "host"
+      )}/users/resetPassword:token=${resetToken}`;
       sendmail.sendEmail({
         from: "Admins Office <jonas@gmail.com>",
         to: `${req.body.email}`,
-        subject: "Hello",
-        text: `Enter this token to reset Your Password ${resetToken}`,
-      }); 
+        subject: `Adminstrative Offce`,
+        message: `Seems Like you forgot your password. Reset YOur password with this link. 
+        ${resetUrl} know that it will expire after 10mins 
+        If this is not you then ignore this email `,
+      });
+      res.status(200).json({
+        status: "success",
+        message: "Message is sent to your email! ",
+        user
+      });
     } catch (error) {
+      user.passwordResetToken = undefined;
+      user.passwordResetExpires = undefined;
+      await user.save();
       console.error(error);
     }
-
-    
   }
 };
 
-exports.changeOfPassword = async (req, res, next) => {};
+exports.changeOfPassword = async (req, res, next) => {
+  const hashedPsw = crypto
+                    .createHash('sha256') 
+                    .update(req.params.token)
+                    .digest('hex');
+  console.log(req.params.token + " " + hashedPsw);
+  const user = await User.findOne({passwordResetToken : hashedPsw, passwordResetExpires: {$gt: Date.now()} });
+console.log(user);
+  if(!user){
+    res.json({
+      message: 'Your Token does not much. Try again!'
+    });
+  }
+  else{
+    user.password = req.body.password;
+    await user.save();
+    res.json({
+      status: "success",
+      message: ' Password Changed successfully!',
+      user:{
+        user
+      }
+    })
+  }
+
+};
