@@ -5,7 +5,22 @@ const protect = require('./controls/protectRoute');
 const router = express.Router();
 const bodyparser = require('body-parser')
 const mongoose = require('mongoose');
+const multer = require('multer');
+const path = require('path');
+const events = require('./controls/EventsControls')
+const club = require('./controls/clubControl')
 
+
+const Storage = multer.diskStorage({
+  destination: './uploads',
+  filename: (req, file, cb)=>{
+    cb(null, file.fieldname + "_" + Date.now()+ path.extname(file.originalname))
+  }
+})
+
+var upload = multer({
+  storage: Storage
+}).single('file');
 
 var urlencoder = bodyparser.urlencoded({
    extended:true
@@ -25,11 +40,25 @@ router.post('/forgotPassword', jsonparsor, authenticate.forgotPassword);
 router.post('/signup', jsonparsor, authenticate.signup);
 router.post('/adminSignup', jsonparsor, authenticate.customSignup);
 router.post('/users/resetPassword/:token', jsonparsor, authenticate.changeOfPassword);
+router.post('/adminsPasswordReset/:userId',jsonparsor, authenticate.resetPassword )
+
       // Forum routes
 router.post('/postQuestion',jsonparsor,protect.protectRoute, protect.restrictTo('student'),  forumjs.postQuestion);
-/*router.put('/editQuestion', jsonparsor, protect.restrictTo('student'), protect.protectRoute, forumjs.editQuestion);
+router.put('/editQuestion', protect.protectRoute, jsonparsor, protect.restrictTo('student'),  forumjs.editQuestion);
 router.post('/rateQuestion', jsonparsor, protect.restrictTo('student'),protect.protectRoute, forumjs.rateQuestion);
 router.delete('/removeQuestion', jsonparsor, protect.restrictTo('student'),protect.protectRoute, forumjs.removeQuestion);
 router.post('/reportQuestion', jsonparsor, protect.restrictTo('student'), forumjs.makeReport);
-*/
+    
+      // Information routes
+router.post('/postEvent/:userId', jsonparsor, upload, protect.protectRoute, protect.restrictTo('info-director'),events.addEvents );
+router.get('/getEvent', jsonparsor, upload,events.getAllEvents );
+router.delete('/removeEvent/:id', jsonparsor, protect.protectRoute, protect.restrictTo('info-director'), events.deleteEvent );
+    
+      //Club Routes
+router.post('/addnewclub/:userId', jsonparsor, upload, protect.protectRoute, protect.restrictTo('club-president'), club.addNewClub );
+router.post('/applytoclub/:userId', jsonparsor, protect.protectRoute, protect.restrictTo('student'), club.applyToClub );
+router.get('/getallclubs', jsonparsor, club.getAllClubs);
+router.get('/getclubmembers', jsonparsor, club.getClubMembers);
+
+
 module.exports = router;

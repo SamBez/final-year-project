@@ -9,6 +9,11 @@ const crypto = require('crypto');
         required: true,
         type: String
     },
+    department: {
+        type: String,
+        required: false,
+
+    },
     email: {
         required: true,
         type: String
@@ -24,6 +29,7 @@ const crypto = require('crypto');
     password: {
         required: true,
         type: String,
+        select: false
     },
     activated: {
         required: true,
@@ -32,16 +38,24 @@ const crypto = require('crypto');
     },
     createdAt:{
      type: Date,
-     default: Date.now()
+     default: Date.now(),
+     select: false
+    },
+    passwordModified: {
+        type: Boolean,
+        default: false
     },
     passwordResetToken: {
-      type: String
+      type: String,
+      select: false
     },
     passwordResetExpires:{
-        type: Date
+        type: Date,
+        select: false
     },
     passwordChangedAt:{
-        type: Date
+        type: Date,
+        select: false
     },
     role: {
         type: String,

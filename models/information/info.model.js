@@ -16,7 +16,8 @@ const infoSchema = new mongoose.Schema({
     },
     file: {
         type: Buffer,
-        required: false
+        contentType: String,
+        required: true
     },
     userId:{
         type: String, 

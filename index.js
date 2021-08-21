@@ -10,7 +10,7 @@ app.use(bodyparser.urlencoded({
   }) );
 
 
-app.use('/', router);
+app.use('/api', router);
 app.use(function (err, req, res, next) {
     console.error(err.stack)
     res.status(500).send('Something broke!')

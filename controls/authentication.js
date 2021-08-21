@@ -43,13 +43,33 @@ exports.login = async (req, res, next) => {
       } else {
         console.log(new ServError("Wrong Password", 202));
       }
-    } else if (user && user.role != "student") {
+    } else if (user && user.role != "student" && user.passwordModified == false) {
       res.json({
         message: "You need to change password !",
+        user
+      });
+      next();
+    }
+    else if (user && user.role != "student" && user.passwordModified == true) {
+      const token = jwt.sign(
+        {
+          id: user._id,
+          email: user.email,
+        },
+        "secret",
+        {
+          expiresIn: "10d",
+        }
+      );
+      res.status(200).json({
+        status: "success",
+        data: user,
+        token,
       });
       next();
     } else {
       res.json({
+        status:"failure",
         message: new ServError("No Such Account", 400),
       });
     }
@@ -94,7 +114,7 @@ exports.signup = async (req, res, cb) => {
   }
   cb();
 };
-exports.customSignup = async (req, res, cb) => {
+exports.customSignup = async (req, res, next) => {
   const newAdmin = await User.findOne({
     email: req.body.email,
   });
@@ -105,6 +125,7 @@ exports.customSignup = async (req, res, cb) => {
       message: " This Email has Already been Used",
     });
   } else {
+    req.body.password = dummyPsw;
     const createdAdmin = await User.create(req.body, (error, result) => {
       if (error) {
         res.json({
@@ -139,6 +160,7 @@ exports.customSignup = async (req, res, cb) => {
           console.error(" Eroror");
         }
       }
+      next();
     });
   }
 };
@@ -207,5 +229,29 @@ console.log(user);
       }
     })
   }
-
 };
+exports.resetPassword = async(req, res, next)=>{
+  const freshUser = await User.findOne({_id: req.params.userId});
+  if (freshUser){
+    freshUser.password = req.body.password;
+    freshUser.passwordModified= true
+    await freshUser.save();
+    const token = jwt.sign(
+      {
+        id: freshUser._id,
+        email: freshUser.email,
+      },
+      "secret",
+      {
+        expiresIn: "10d",
+      }
+    );
+    res.json({
+      status: "success",
+      message: " Password Successfuly changed",
+      freshUser,
+      token
+    })
+  }
+  next();
+}

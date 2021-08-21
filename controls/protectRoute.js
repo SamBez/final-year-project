@@ -6,9 +6,11 @@ exports.restrictTo = (...roles)=>{
     return (req, res, next)=>{
         if (!roles.includes(req.user.role)){
           res.json({
-           message: new Error("Unauthorized User for this Action!")
+           message: "Unauthorized User for this Action!"
           }); 
+          console.log(" Unauthorized USer")
         }
+        console.log("role set")
         next();
     }
 }
@@ -34,6 +36,7 @@ exports.protectRoute = async (req, res, next)=>{
          })
          req.user = freshuser;
          console.log(req.user);
+         console.log('Token set')
         next();
     }
     else {
