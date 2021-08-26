@@ -6,7 +6,8 @@ const clubSchema = new mongoose.Schema({
            required: true
        },
        logo: {
-           type: Buffer,
+           data: Buffer,
+           contentType: String,
            required: false
        },
        club_description: {

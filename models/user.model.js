@@ -29,7 +29,7 @@ const crypto = require('crypto');
     password: {
         required: true,
         type: String,
-        select: false
+    
     },
     activated: {
         required: true,

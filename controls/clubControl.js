@@ -1,12 +1,16 @@
 const Club = require("../models/club/clubs.model")
 const Student = require("../models/student.model")
 const Applicant = require('../models/club/applicants.model')
-
+const path = require('path')
+const fs = require('fs')
 exports.addNewClub = async(req, res, next)=>{
     console.log(" New Club")
     const club = {
         clubname: req.body.clubname,
-        logo: req.file.filename,
+        logo: {
+            data:  fs.readFileSync( req.file.path),
+            contentType: 'image/jpg/png'
+        },
         club_description: req.body.club_description,
         maxIntake: req.body.maxIntake,
         recruiting: req.body.recruiting,

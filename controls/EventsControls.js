@@ -1,11 +1,14 @@
 const Events = require('../models/information/info.model')
-
+const fs = require('fs')
 exports.addEvents = async(req, res, next)=>{
      const Event = {
          title: req.body.title,
          body: req.body.body,
          userId: req.params.userId,
-         file: req.file.fieldname
+         file: {
+           data: fs.readFileSync(path.join(__dirname +'/'+ req.file.path)),
+           contentType: 'image/jpg/png'
+         }
      }
    //  console.log(Event);
    await Events.create(Event, (err, result)=>{
