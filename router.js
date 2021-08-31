@@ -12,7 +12,7 @@ const club = require('./controls/clubControl')
 
 
 const Storage = multer.diskStorage({
-  destination: './uploads',
+  destination: 'C:/Users/samra/Desktop/4th year/front/front/src/assets',
   filename: (req, file, cb)=>{
     cb(null, file.fieldname + "_" + Date.now()+ path.extname(file.originalname))
   }
@@ -34,7 +34,7 @@ var jsonparsor = bodyparser.json();
        console.log(" Successfuly connected")
    }
 });
-
+router.post('/super', jsonparsor, (req, res, next)=>{})
 router.post('/login',jsonparsor,  authenticate.login);
 router.post('/forgotPassword', jsonparsor, authenticate.forgotPassword);
 router.post('/signup', jsonparsor, authenticate.signup);
@@ -42,6 +42,7 @@ router.post('/adminSignup', jsonparsor, authenticate.customSignup);
 router.post('/users/resetPassword/:token', jsonparsor, authenticate.changeOfPassword);
 router.post('/adminsPasswordReset/:userId',jsonparsor, authenticate.resetPassword )
 
+router.get('/getAllAdmins', jsonparsor, protect.protectRoute, protect.restrictTo('super-admin'), authenticate.getAllAdmins)
       // Forum routes
 router.post('/postQuestion',jsonparsor,protect.protectRoute, protect.restrictTo('student'),  forumjs.postQuestion);
 router.put('/editQuestion', protect.protectRoute, jsonparsor, protect.restrictTo('student'),  forumjs.editQuestion);
@@ -59,6 +60,10 @@ router.post('/addnewclub/:userId', jsonparsor, upload, protect.protectRoute, pro
 router.post('/applytoclub/:userId', jsonparsor, protect.protectRoute, protect.restrictTo('student'), club.applyToClub );
 router.get('/getallclubs', jsonparsor, club.getAllClubs);
 router.get('/getclubmembers', jsonparsor, club.getClubMembers);
-
+router.post('/studentApplyClub/:userId', jsonparsor, protect.protectRoute, protect.restrictTo('student'), club.studentApplyClub);
+router.get('/notifyCP', jsonparsor, protect.protectRoute, protect.restrictTo('club-president'), club.notifyCP);
+router.post('/approveApplicant', jsonparsor, protect.protectRoute, protect.restrictTo('club-president'));
+router.get('/myClubs', jsonparsor, protect.protectRoute, protect.restrictTo('student'))
+router.post('/approveApplicant/:userId', jsonparsor, protect.protectRoute ,protect.restrictTo('club-president'), club.approveApplicant);
 
 module.exports = router;

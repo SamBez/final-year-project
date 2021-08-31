@@ -15,8 +15,8 @@ const infoSchema = new mongoose.Schema({
         default: Date.now()
     },
     file: {
-        data: Buffer,
-        contentType: String,
+        type: String,
+        //contentType: String,
     },
     userId:{
         type: String, 

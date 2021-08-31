@@ -27,7 +27,11 @@ const clubSchema = new mongoose.Schema({
            type: Number,
            required: false
        },
-       members: []
+       members: [],
+       userId: {
+           type: String,
+           required: true
+       }
 
 });
 

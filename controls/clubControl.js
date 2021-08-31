@@ -79,8 +79,71 @@ exports.studentApplyClub = async (req, res, next)=>{
         department: req.body.department,
         WhyThisClub: req.body.WhyThisClub
     }
-    const newApplicant = await Applicant.create(data);
-    if(newApplicant){
-        res.json({})
+    const alreadyApplied = await Applicant.findOne({userId: req.params.userId, clubId: req.body.clubId});
+    if (!alreadyApplied){
+        const newApplicant = await Applicant.create(data);
+        if(newApplicant){
+            res.json({
+                status: 'success',
+                message: " you have successfuly applied to the club.", 
+                newApplicant
+            })
+        }
+        else{
+            res.json({
+                status: 'failure',
+                message: " Not applied. Try again."
+            })
+        }
     }
+    else{
+        res.json({
+            status: 'failure',
+            message: 'You have already applied to this Club.'
+        })
+    }
+    
+    next();
+}
+
+exports.notifyCP = async (req, res, next)=>{
+    const theClub = await Club.findOne({userId: req.params.userId});
+   console.log(theClub);
+
+    const applicants = Applicant.find({clubId: theClub._id});
+    if(!applicants){
+        res.json({
+            message: "No Applicant Yet."
+        })
+        next();
+    }
+    else{
+       // const president = await User.findOne({userId: req.params.userId});
+        res.json({
+            status: 'success',
+            applicants
+        })
+    }
+}
+exports.approveApplicant = async(req, res, next)=>{
+    const clubs = await Club.findOne({userId: req.params.userId})
+    console.log("found club "+ clubs)
+    const member = req.body.userId
+    clubs.members.push(member);
+    clubs.save();
+    res.json({
+        status: 'success',
+        message: 'saved.'
+    });
+    next();
+}
+
+exports.myClubs = async(req, res, next)=>{
+    let user = req.params.userId
+    const clubs = await Club.find({})
+    const myclubs = clubs.map( member =>{
+          let obj={}
+          obj[member.userId] = member.userId
+          return myclubs
+    })
 }

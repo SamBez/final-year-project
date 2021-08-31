@@ -291,3 +291,26 @@ exports.resetPassword = async (req, res, next) => {
   }
   next();
 };
+exports.getAllAdmins = async(req, res, next)=>{
+  const material_admin = await User.find({role: 'material-admin'})
+  const info_admin =  await User.find({role: 'info-admin'})
+  const club_president = await User.find({role: 'club-president'})
+  const forum_admin =  await User.find({role: 'forum-admin'})
+  if(material_admin || info_admin || club_president || forum_admin){
+    res.json({
+       status: 'success',
+       data: {
+         material_admin,
+         info_admin,
+         club_president,
+         forum_admin
+       }
+    })    
+  }
+  else{
+  res.json({
+    status: 'failure',
+    message: " There is no Administrator found in the DB."
+  })
+  }
+}
