@@ -6,28 +6,59 @@ exports.postQuestion = async (req, res, next)=>{
     const questionData = {
               title: req.body.title, 
               description: req.body.description,
-              userId: req.params.userId
+              userId: req.body.userId,
+              catagory: req.body.catagory
     }
     const createdQ = await question.create(questionData, (err, result)=>{
         if (err) {
             console.log("Prob creating question")
+            console.log(err);
         }
 
         else{
-            console.log(result);
+
+            res.json({
+                status: "success",
+                data:{
+                    result
+                }
+            });
         }
     });
-    if (createdQ){
-        res.status(201).json({
-            status: "success",
-            data:{
-                createdQ
-            }
-        });
+    next();
+}
+exports.allQuestionsbyDate = async (req, res, next)=>{
+    const allQuestions = await question.find({createdAt: {$gt: new Date(new Date().getTime()-20*24*60*60*60*1000).toISOString()}})
+    
+    if( allQuestions){
+        res.json({
+        status:'success',
+        allQuestions
+    })}
+    else{
+        res.json({
+            status: 'failure',
+            message: 'no recent Question.'
+        })
     }
     next();
 }
-
+exports.myQuestions = async (req, res, next) =>{
+    const questions = await question.find({userId: req.params.userId});
+    if( !questions){
+        res.json({
+            status: 'failure',
+            message: 'You dont have any question posted yet!'
+        })
+    }
+    else{
+        res.json({
+            status: 'success',
+            questions
+        })
+    }
+    next();
+}
 exports.removeQuestion = async (req, res, next)=>{
        const questionID = req.params.id;
        await question.findOneAndRemove({_id: questionID}, (err, result)=>{

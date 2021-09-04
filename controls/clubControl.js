@@ -2,6 +2,7 @@ const Club = require("../models/club/clubs.model")
 const Student = require("../models/student.model")
 const Applicant = require('../models/club/applicants.model')
 const path = require('path')
+const User = require('../models/user.model')
 const fs = require('fs')
 exports.addNewClub = async(req, res, next)=>{
     console.log(" New Club")
@@ -71,7 +72,16 @@ exports.getClubMembers = async(req, res, next)=>{
     })
     
 }
-
+exports.deleteMember = async( req, res, next)=>{
+    const club = await Club.findOne({_id: req.params.userId});
+    club.members.pop(req.body.userId)
+    club.save();
+    res.json({
+        status: "success",
+        message: "YOu have succesfuly removed this member" 
+    })
+    next();
+}
 exports.studentApplyClub = async (req, res, next)=>{
     const data = {
         userId: req.params.userId,
@@ -113,6 +123,7 @@ exports.notifyCP = async (req, res, next)=>{
     const applicants = Applicant.find({clubId: theClub._id});
     if(!applicants){
         res.json({
+            status: 'failure',
             message: "No Applicant Yet."
         })
         next();
@@ -128,22 +139,32 @@ exports.notifyCP = async (req, res, next)=>{
 exports.approveApplicant = async(req, res, next)=>{
     const clubs = await Club.findOne({userId: req.params.userId})
     console.log("found club "+ clubs)
+     const approvedApplicant = await User.findOne({_id: req.body.userId})
+     approvedApplicant.clubId = clubs._id;
+     approvedApplicant.save();
     const member = req.body.userId
     clubs.members.push(member);
     clubs.save();
+    await Applicant.findOneAndRemove({userId: req.body.userId});
     res.json({
         status: 'success',
         message: 'saved.'
     });
     next();
 }
+exports.declineApplicant = async(req, res, next)=>{
+     
+}
 
 exports.myClubs = async(req, res, next)=>{
-    let user = req.params.userId
-    const clubs = await Club.find({})
-    const myclubs = clubs.map( member =>{
-          let obj={}
-          obj[member.userId] = member.userId
-          return myclubs
-    })
+    const user = await User.findOne({userId: req.params.userId});
+    let clubArray = user.clubId
+    
+
+    const myclubs = clubArray.map( async member =>  await Club.find({_id: member}))
+    res.json({
+        status: 'success',
+        myclubs
+    });
+    next();
 }

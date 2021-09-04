@@ -5,6 +5,10 @@ const questionSchema = new mongoose.Schema({
         type: mongoose.Types.ObjectId,
         required: true
     },
+   catagory:{
+        type: String,
+        required: true
+    },
     title:{
         type: String,
         required: true
@@ -22,8 +26,16 @@ const questionSchema = new mongoose.Schema({
         type: Number,
         required: true,
         default: 0
+    }, 
+    createdAt: {
+        type: Date,
+        default: Date.now()
     }
 })
+ //questionSchema.pre('save', (next)=>{
+   //  this.createdAt =  Date.now()
+     //next();
+ //});
 
 //questionSchema.pre('save', (next)=>{
   //  if(this.no_report >= 5){

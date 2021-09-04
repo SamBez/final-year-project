@@ -45,11 +45,11 @@ router.post('/adminsPasswordReset/:userId',jsonparsor, authenticate.resetPasswor
 router.get('/getAllAdmins', jsonparsor, protect.protectRoute, protect.restrictTo('super-admin'), authenticate.getAllAdmins)
       // Forum routes
 router.post('/postQuestion',jsonparsor,protect.protectRoute, protect.restrictTo('student'),  forumjs.postQuestion);
-router.put('/editQuestion', protect.protectRoute, jsonparsor, protect.restrictTo('student'),  forumjs.editQuestion);
-router.post('/rateQuestion', jsonparsor, protect.restrictTo('student'),protect.protectRoute, forumjs.rateQuestion);
-router.delete('/removeQuestion', jsonparsor, protect.restrictTo('student'),protect.protectRoute, forumjs.removeQuestion);
-router.post('/reportQuestion', jsonparsor, protect.restrictTo('student'), forumjs.makeReport);
-    
+router.put('/editQuestion', jsonparsor, protect.protectRoute, jsonparsor, protect.restrictTo('student'),  forumjs.editQuestion);
+router.post('/rateQuestion', jsonparsor, protect.protectRoute,protect.restrictTo('student'), forumjs.rateQuestion);
+router.delete('/removeQuestion', jsonparsor,protect.protectRoute, protect.restrictTo('student'), forumjs.removeQuestion);
+router.post('/reportQuestion', jsonparsor,protect.protectRoute, protect.restrictTo('student'), forumjs.makeReport);
+router.get('/allquestions', jsonparsor, forumjs.allQuestionsbyDate);    
       // Information routes
 router.post('/postEvent/:userId', jsonparsor, upload, protect.protectRoute, protect.restrictTo('info-director'),events.addEvents );
 router.get('/getEvent', jsonparsor, upload,events.getAllEvents );
@@ -62,8 +62,9 @@ router.get('/getallclubs', jsonparsor, club.getAllClubs);
 router.get('/getclubmembers', jsonparsor, club.getClubMembers);
 router.post('/studentApplyClub/:userId', jsonparsor, protect.protectRoute, protect.restrictTo('student'), club.studentApplyClub);
 router.get('/notifyCP', jsonparsor, protect.protectRoute, protect.restrictTo('club-president'), club.notifyCP);
-router.post('/approveApplicant', jsonparsor, protect.protectRoute, protect.restrictTo('club-president'));
-router.get('/myClubs', jsonparsor, protect.protectRoute, protect.restrictTo('student'))
+router.post('/approveApplicant', jsonparsor, protect.protectRoute, protect.restrictTo('club-president'), club.approveApplicant);
+router.get('/myClubs/:userId', jsonparsor, protect.protectRoute, protect.restrictTo('student'), club.myClubs)
 router.post('/approveApplicant/:userId', jsonparsor, protect.protectRoute ,protect.restrictTo('club-president'), club.approveApplicant);
-
+router.delete('/deleteMember/:userId', jsonparsor, protect.protectRoute, protect.restrictTo('club-president'), club.deleteMember)
+//router.get('/myClubs/:userId', jsonparsor, protect.protectRoute, protect)
 module.exports = router;

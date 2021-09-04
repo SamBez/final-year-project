@@ -18,6 +18,7 @@ const crypto = require('crypto');
         required: true,
         type: String
     },
+    clubId: [],
     phone: {
         required: false,
         type: String
