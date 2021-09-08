@@ -156,39 +156,88 @@ exports.getAllReports = async(req, res, next)=>{
     });
 
 }
-exports.giveAnswer = async(req, res, next)=>{
+exports.giveAnswer = async (req, res, next)=>{
     let data ={
         userId : req.params.userId,
         description: req.body.description,
         qID: req.body.qID
     }
-      
-    const reason = await Answer.create({data}, (err, result)=>{
+     console.log(data); 
+    const reason = await Answer.create(data);
+    if(reason){
+    res.json({
+        status: 'success',
+        reason
+    })
+}
+else{
+    res.json({
+        status: 'failure',
+        message: "Your answer ahs not been registered."
+    })
+}
+    /* (err, result)=>{
         if(err) throw err
 
         else{
-            console.log(result);
-            res.json({
+           /* res.json({
                 status: 'success',
                 result
             })
-        }
-    });
-
+            console.log(result);
+        }*/
+        console.log(reason);
+    //});
+    next();
 }
 
 exports.getallAnswers = async(req, res, next)=>{
-      
-    const reason = await Answer.find({qId: req.params.qId}, (err, result)=>{
-        if(err) throw err
+        
+    const reason = await Answer.find({qID: req.params.qID});
 
+         if(reason == []){
+            console.log("no result found "+reason);
+            res.json({
+                status: 'failure',
+                message: 'No Answers Yet'
+            });
+        }
         else{
-            console.log(result);
+            let user = []
+           // for(reas in reason){
+             //   console.log(reason[reas])
+              //user.push( await User.findById(reason[reas].userId))
+           // }
+            
             res.json({
                 status: 'success',
-                result
+                reason,
+                user       
+                });
+            }
+        console.log(reason);
+        next();
+
+}
+exports.getQuestion = async(req, res, next)=>{
+    const myQuestions = await question.findById(req.params.qID); 
+    const user = await User.findById(myQuestions.userId)
+         if(!myQuestions ){
+            console.log(myQuestions);
+            res.json({
+                status: 'failure',
+                message: 'No Answers Yet'
+                
             })
         }
-    });
-
+        else{
+            console.log(myQuestions)
+            res.json({
+                status: 'success',
+                myQuestions,
+                user
+                
+                })
+            }
+       next();
 }

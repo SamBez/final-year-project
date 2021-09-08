@@ -15,17 +15,19 @@ const answerSchema = new mongoose.Schema({
     },
     rates: {
         type: Number,
+        default: 0,
         required: true
     },
     no_report: {
         type: Number,
+        default: 0,
         required: true
     }
 })
 
 answerSchema.pre('save', async function(){
-    const member = await User.findById(this.userId)
-    this.userId = member;
+   // const member = await User.findById(this.userId)
+   // this.userId = member;
     })
 
 

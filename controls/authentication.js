@@ -124,7 +124,6 @@ exports.signup = async (req, res, cb) => {
       const token = jwt.sign(
         {
           id: newUser._id,
-          studId: newUser.studId,
         },
         "secret",
         {
@@ -133,18 +132,18 @@ exports.signup = async (req, res, cb) => {
       );
       res.status(201).json({
         status: "success",
-        data: {
           user: newUser,
-          token,
-        },
+          token
+        
       });
     } catch (error) {
       console.error(error);
     }
   } else {
-    res.json(
-      new ServError("User Already Exists with the specified Email", 200)
-    );
+    res.json({
+      status: 'failure',
+      message: "User Already Exists with the specified Email"
+    });
   }
   cb();
 };
@@ -199,11 +198,12 @@ exports.customSignup = async (req, res, next) => {
   }
 };
 exports.forgotPassword = async (req, res, next) => {
+  console.log(req.body)
   let user = await User.findOne({ email: req.body.email });
   console.log(user);
   if (!user) {
     res.json({
-      status: "fail",
+      status: "failure",
       message: " No user found",
     });
   } else {
@@ -244,7 +244,7 @@ exports.changeOfPassword = async (req, res, next) => {
     .createHash("sha256")
     .update(req.params.token)
     .digest("hex");
-  console.log(req.params.token + " " + hashedPsw);
+  console.log(req.body.token + " " + hashedPsw);
   const user = await User.findOne({
     passwordResetToken: hashedPsw,
     passwordResetExpires: { $gt: Date.now() },

@@ -27,6 +27,11 @@ const questionSchema = new mongoose.Schema({
         required: true,
         default: 0
     }, 
+    no_answers: {
+        type: Number,
+        required: true,
+        default: 0
+    },
     createdAt: {
         type: Date,
         default: Date.now()

@@ -39,7 +39,7 @@ router.post('/login',jsonparsor,  authenticate.login);
 router.post('/forgotPassword', jsonparsor, authenticate.forgotPassword);
 router.post('/signup', jsonparsor, authenticate.signup);
 router.post('/adminSignup', jsonparsor, authenticate.customSignup);
-router.post('/users/resetPassword/:token', jsonparsor, authenticate.changeOfPassword);
+router.post('/users/resetPassword', jsonparsor, authenticate.changeOfPassword);
 router.post('/adminsPasswordReset/:userId',jsonparsor, authenticate.resetPassword )
 router.get('/getAllAdmins', jsonparsor, protect.protectRoute, protect.restrictTo('super-admin'), authenticate.getAllAdmins)
      
@@ -51,8 +51,10 @@ router.delete('/removeQuestion', jsonparsor,protect.protectRoute, protect.restri
 router.get('/myQuestions/:userId', jsonparsor,protect.protectRoute, protect.restrictTo('student'), forumjs.myQuestions);
 router.post('/reportQuestion', jsonparsor,protect.protectRoute, protect.restrictTo('student'), forumjs.makeReport);
 router.get('/allquestions', jsonparsor, forumjs.allQuestionsbyDate);  
-router.post('/giveAnswer/:userId', jsonparsor, protect.protectRoute, protect.restrictTo('student', forumjs.giveAnswer))  
-router.get('/getallAnswers/:qId', jsonparsor, protect.protectRoute, protect.restrictTo('student'), forumjs.getallAnswers)  
+router.post('/giveAnswer/:userId', jsonparsor, protect.protectRoute, protect.restrictTo('student'), forumjs.giveAnswer);
+router.get('/getallAnswers/:qID', jsonparsor,  forumjs.getallAnswers)  
+router.get('/getQuestion/:qID', jsonparsor,  forumjs.getQuestion)
+
 
       // Information routes
 router.post('/postEvent/:userId', jsonparsor, upload, protect.protectRoute, protect.restrictTo('info-director'),events.addEvents );
