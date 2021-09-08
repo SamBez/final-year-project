@@ -6,7 +6,7 @@ const reportSchema = new mongoose.Schema({
         required: true
     },
     userId:{
-        type: String,
+        type: Object,
         required: true
     },
     reason: {
@@ -15,4 +15,8 @@ const reportSchema = new mongoose.Schema({
     }
 })
 
+reportSchema.pre('save', async function(){
+    const reporter = await User.findById(this.userId)
+    this.userId = await Promise.all(reporter);
+    })
 module.exports = new mongoose.model('Report', reportSchema);

@@ -6,7 +6,7 @@ const answerSchema = new mongoose.Schema({
         required: true
     },
     userId:{
-        type: String,
+        type: mongoose.Types.ObjectId,
         required: true
     },
     description: {
@@ -23,7 +23,10 @@ const answerSchema = new mongoose.Schema({
     }
 })
 
-
+answerSchema.pre('save', async function(){
+    const member = await User.findById(this.userId)
+    this.userId = member;
+    })
 
 
 module.exports = new mongoose.model('answer', answerSchema);

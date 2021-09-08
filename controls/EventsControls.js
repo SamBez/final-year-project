@@ -35,7 +35,7 @@ exports.addEvents = async(req, res, next)=>{
 
 exports.getAllEvents = async( req, res, next)=>{
   var date = new Date(Date.now() + 5*24*60*60*1000);
-    const Event = await Events.find({ });
+    const Event = await Events.find({});
     if (Event){
       res.status(201).json({
         status: " success",
@@ -46,11 +46,30 @@ exports.getAllEvents = async( req, res, next)=>{
     }
     else{
       res.json({
+        status:'failure',
         message:" No Event Added Yet."
       })
     }
 }
 
+exports.getEvents = async( req, res, next)=>{
+  var date = new Date(Date.now() + 5*24*60*60*1000);
+    const Event = await Events.find({userId: req.params.userId});
+    if (Event){
+      res.status(201).json({
+        status: " success",
+        body:{
+          Event
+        }
+      })
+    }
+    else{
+      res.json({
+        status:'failure',
+        message:" No Event Added Yet."
+      })
+    }
+}
 exports.deleteEvent = async(req, res, next)=>{
    
   await Events.findOneAndRemove({_id: req.params.id}, (error, result)=>{

@@ -1,35 +1,45 @@
 const question = require('../models/forum/question.model');
-const answer = require('../models/forum/answers.model');
+const Answer = require('../models/forum/answers.model');
 const Reason = require('../models/forum/reports.model');
-
+const User = require('../models/user.model')
 exports.postQuestion = async (req, res, next)=>{
+    const user = await User.findOne({_id: req.params.userId});
+    if (user.activated == false){
+        res.json({
+            status: 'failure', 
+            message: 'you have been banned from posting any Questions'
+        })
+    }else{
+
     const questionData = {
               title: req.body.title, 
               description: req.body.description,
-              userId: req.body.userId,
+              userId: req.params.userId,
               catagory: req.body.catagory
     }
     const createdQ = await question.create(questionData, (err, result)=>{
         if (err) {
             console.log("Prob creating question")
             console.log(err);
+            res.json({
+                status: 'failure',
+                message: 'Unable to Post your Question.'
+            })
         }
 
         else{
-
             res.json({
                 status: "success",
-                data:{
-                    result
-                }
+                result
             });
         }
     });
+}
     next();
 }
 exports.allQuestionsbyDate = async (req, res, next)=>{
     const allQuestions = await question.find({createdAt: {$gt: new Date(new Date().getTime()-20*24*60*60*60*1000).toISOString()}})
-    
+    console.log(allQuestions)
     if( allQuestions){
         res.json({
         status:'success',
@@ -44,7 +54,9 @@ exports.allQuestionsbyDate = async (req, res, next)=>{
     next();
 }
 exports.myQuestions = async (req, res, next) =>{
+    console.log(req.params.userId)
     const questions = await question.find({userId: req.params.userId});
+    console.log(questions);
     if( !questions){
         res.json({
             status: 'failure',
@@ -85,9 +97,9 @@ exports.editQuestion = async (req, res, next)=>{
        questions.description = req.body.description
        const updated = await questions.save();
        res.json({
-           data: {
-               updated
-           }
+            status: 'success',
+            updated
+           
        })
     }
 }
@@ -127,5 +139,56 @@ exports.makeReport = async(req, res, next)=>{
             message:" Question successfuly reported!"
         })
     }
+
+}
+exports.getAllReports = async(req, res, next)=>{
+  
+    const reason = await Reason.find({qID: req.params.qID}, (err, result)=>{
+        if(err) throw err
+
+        else{
+            console.log(result);
+            res.json({
+                status: 'success',
+                result
+            })
+        }
+    });
+
+}
+exports.giveAnswer = async(req, res, next)=>{
+    let data ={
+        userId : req.params.userId,
+        description: req.body.description,
+        qID: req.body.qID
+    }
+      
+    const reason = await Answer.create({data}, (err, result)=>{
+        if(err) throw err
+
+        else{
+            console.log(result);
+            res.json({
+                status: 'success',
+                result
+            })
+        }
+    });
+
+}
+
+exports.getallAnswers = async(req, res, next)=>{
+      
+    const reason = await Answer.find({qId: req.params.qId}, (err, result)=>{
+        if(err) throw err
+
+        else{
+            console.log(result);
+            res.json({
+                status: 'success',
+                result
+            })
+        }
+    });
 
 }

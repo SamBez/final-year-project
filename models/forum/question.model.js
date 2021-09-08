@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-
+//const User = require('../')
 const questionSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Types.ObjectId,
@@ -30,7 +30,10 @@ const questionSchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now()
-    }
+    }, 
+})
+questionSchema.pre('save', ()=>{
+   // this.userId = await User.findbyId(this.userId)
 })
  //questionSchema.pre('save', (next)=>{
    //  this.createdAt =  Date.now()

@@ -252,6 +252,7 @@ exports.changeOfPassword = async (req, res, next) => {
   console.log(user);
   if (!user) {
     res.json({
+      status: 'failure',
       message: "Your Token does not much. Try again!",
     });
   } else {
@@ -268,8 +269,9 @@ exports.changeOfPassword = async (req, res, next) => {
 };
 exports.resetPassword = async (req, res, next) => {
   const freshUser = await User.findOne({ _id: req.params.userId });
-  if (freshUser) {
-    freshUser.password = req.body.password;
+  if (freshUser && freshUser.password == req.body.sentpassword) {
+    
+    freshUser.password = req.body.newpassword;
     freshUser.passwordModified = true;
     await freshUser.save();
     const token = jwt.sign(
@@ -285,9 +287,15 @@ exports.resetPassword = async (req, res, next) => {
     res.json({
       status: "success",
       message: " Password Successfuly changed",
-      freshUser,
+      user: freshUser,
       token,
     });
+  }
+  else{
+    res.json({
+      status: 'failure',
+      message: 'You entered wrong password. Make sure to enter the right one.'
+    })
   }
   next();
 };
