@@ -1,6 +1,7 @@
 const Events = require('../models/information/info.model')
 const fs = require('fs')
 const path = require('path')
+
 exports.addEvents = async(req, res, next)=>{
   console.log(req.file.filename)
      const Event = {

@@ -12,11 +12,14 @@ const reportSchema = new mongoose.Schema({
     reason: {
         type: String,
         required: true
-    }
+    },
+    createdAt: {
+        type: Date,
+        default:  Date.now()}
 })
 
 reportSchema.pre('save', async function(){
-    const reporter = await User.findById(this.userId)
-    this.userId = await Promise.all(reporter);
+    //const reporter = await User.findById(this.userId)
+    //this.userId = await Promise.all(reporter);
     })
 module.exports = new mongoose.model('Report', reportSchema);

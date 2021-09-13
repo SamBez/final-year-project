@@ -112,6 +112,15 @@ exports.login = async (req, res, next) => {
   next();
 };
 
+exports.findUser = async (req, res, next)=>{
+    const user = await User.findOne({
+      _id: req.params.userId
+    });
+   res.json({
+     status: 'success',
+     user
+   })
+}
 exports.signup = async (req, res, cb) => {
   console.log(req.body);
   const foundUser = await User.findOne({
@@ -321,4 +330,14 @@ exports.getAllAdmins = async(req, res, next)=>{
     message: " There is no Administrator found in the DB."
   })
   }
+}
+exports.ban = async (req, res, next)=>{
+  const user = await User.findById(req.params.uId);
+  user.activated = false
+  user.save();
+  console.log(user);
+  res.json({
+    status: 'success',
+    message: "Account successfully banned."
+  })
 }

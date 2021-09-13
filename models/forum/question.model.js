@@ -1,4 +1,6 @@
 const mongoose = require('mongoose')
+const Report = require('./reports.model')
+const Answer = require('./answers.model')
 //const User = require('../')
 const questionSchema = new mongoose.Schema({
     userId: {
@@ -36,6 +38,8 @@ const questionSchema = new mongoose.Schema({
         type: Date,
         default: Date.now()
     }, 
+    reports: [],
+    answers: []
 })
 questionSchema.pre('save', ()=>{
    // this.userId = await User.findbyId(this.userId)
@@ -55,4 +59,15 @@ questionSchema.pre('save', ()=>{
 
    // next();
 //})
+
+questionSchema.pre('save', async function(){
+    const report = this.reports.map(async id => await Report.findById(id))
+    this.reports = await Promise.all(report);
+});
+questionSchema.pre('save', async function(){
+    const answer = this.answers.map(async id => await Answer.findById(id))
+    this.answers = await Promise.all(answer);
+});
+
+
 module.exports = new mongoose.model('Question', questionSchema);

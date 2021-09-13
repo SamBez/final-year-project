@@ -4,6 +4,7 @@ const Applicant = require('../models/club/applicants.model')
 const path = require('path')
 const User = require('../models/user.model')
 const fs = require('fs')
+
 exports.addNewClub = async(req, res, next)=>{
     console.log(" New Club")
     const club = {
@@ -55,21 +56,24 @@ exports.applyToClub = async(req, res, next)=>{
     }
 }
 
-exports.getAllClubs = async(req, res, next)=>{
+exports.getAllClubs = async (req, res, next)=>{
     const clubs = await Club.find({});
     res.json({
        status: 'success',
        clubs
     })
+    console.log(clubs);
+    next();
 }
 
 exports.getClubMembers = async(req, res, next)=>{
-    const club = await Club.findOne({_id: req.body.clubId});
+    const club = await Club.findOne({userId: req.params.userId});
     const members = club.members;
     res.json({
         status: 'success',
         members
     })
+    next();
     
 }
 exports.deleteMember = async( req, res, next)=>{
@@ -126,7 +130,6 @@ exports.notifyCP = async (req, res, next)=>{
             status: 'failure',
             message: "No Applicant Yet."
         })
-        next();
     }
     else{
        // const president = await User.findOne({userId: req.params.userId});
@@ -135,6 +138,8 @@ exports.notifyCP = async (req, res, next)=>{
             applicants
         })
     }
+    next();
+
 }
 exports.approveApplicant = async(req, res, next)=>{
     const clubs = await Club.findOne({userId: req.params.userId})
@@ -157,11 +162,15 @@ exports.declineApplicant = async(req, res, next)=>{
 }
 
 exports.myClubs = async(req, res, next)=>{
-    const user = await User.findOne({userId: req.params.userId});
-    let clubArray = user.clubId
+    const user = await User.findOne({_id: req.params.userId});
     
+    let clubArray = user.clubId
+    console.log(clubArray)
+    
+    const my = clubArray.map( async id =>  await Club.findById( id))
+    console.log(my)
 
-    const myclubs = clubArray.map( async member =>  await Club.find({_id: member}))
+    const myclubs = await Promise.all(my);
     res.json({
         status: 'success',
         myclubs

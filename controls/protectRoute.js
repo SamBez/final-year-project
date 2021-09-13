@@ -7,7 +7,7 @@ exports.restrictTo = (...roles)=>{
         if (!roles.includes(req.user.role)){
           res.json({
               status: 'failure',
-           message: "Unauthorized User for this Action!"
+              message: "Unauthorized User for this Action!"
           }); 
           console.log(" Unauthorized USer")
         }
@@ -28,6 +28,7 @@ exports.protectRoute = async (req, res, next)=>{
         console.log(token + " and ..............." + decoded.id);
     }
     if (token){
+        console.log(token);
       const freshuser =  await User.findById({_id: decoded.id}, (error, result)=>{
              if(error)  {
              res.json({
