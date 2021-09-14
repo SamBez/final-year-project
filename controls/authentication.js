@@ -39,7 +39,7 @@ exports.login = async (req, res, next) => {
           res.status(200).json({
             status: "success",
              user,
-            token
+             token
           });
         }
       } else {
@@ -340,4 +340,21 @@ exports.ban = async (req, res, next)=>{
     status: 'success',
     message: "Account successfully banned."
   })
+}
+
+exports.bannedAccounts = async (req, res, next)=>{
+  const users = await User.find({activated: false});
+  console.log(users);
+  if(users){
+    res.json({
+      status: 'success',
+      users
+    })
+  }
+  else{
+  res.json({
+    status: 'failure',
+    message: "No Account has benn banned yet."
+  })
+}
 }

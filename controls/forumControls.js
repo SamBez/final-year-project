@@ -130,8 +130,9 @@ exports.editQuestion = async (req, res, next) => {
 exports.rateQuestion = async (req, res, next) => {
   try {
     const questionn = await question
-      .findOne({ _id: req.params.id })
-      .select("title");
+      .findOne({ _id: req.params.id });
+      console.log(questionn)
+
     questionn.rate += 1;
     const rate = questionn.rate
     questionn.save();
@@ -166,6 +167,7 @@ exports.makeReport = async (req, res, next) => {
     res.json({
       status: "success",
       message: " Question successfuly reported!",
+      qn
     });
   }
   else{

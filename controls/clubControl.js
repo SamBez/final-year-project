@@ -68,6 +68,7 @@ exports.getAllClubs = async (req, res, next)=>{
 
 exports.getClubMembers = async(req, res, next)=>{
     const club = await Club.findOne({userId: req.params.userId});
+    console.log(club)
     const members = club.members;
     res.json({
         status: 'success',
@@ -124,8 +125,27 @@ exports.notifyCP = async (req, res, next)=>{
     const theClub = await Club.findOne({userId: req.params.userId});
    console.log(theClub);
 
-    const applicants = Applicant.find({clubId: theClub._id});
-    if(!applicants){
+    const applicants = await  Applicant.find({clubId: theClub._id});
+
+     if(applicants.length == 0){
+
+            res.json({
+                status: 'failure',
+                message: 'No Applicant'
+            })
+        }
+        else{
+            let applicantUsers = applicants.map(async id => await User.findById(id.userId))
+            const users = Promise.all(applicantUsers);
+            console.log(users);
+            res.json({
+                status: 'success',
+                users
+            })
+        }
+    
+
+    /*if(!applicants){
         res.json({
             status: 'failure',
             message: "No Applicant Yet."
@@ -136,8 +156,7 @@ exports.notifyCP = async (req, res, next)=>{
         res.json({
             status: 'success',
             applicants
-        })
-    }
+        })*/
     next();
 
 }
@@ -177,3 +196,42 @@ exports.myClubs = async(req, res, next)=>{
     });
     next();
 }
+
+exports.getClubInfo = async(req, res, next)=>{
+
+     const club = await Club.findOne({userId: req.params.userId})
+   if(!club){
+       
+    res.json({
+        status: 'failuer',
+        message: 'You have not specified the details of your club. Click To add now'
+    });
+   }
+else{
+    res.json({
+        status: 'success',
+        club
+    });
+    console.log(club)
+}
+    next();
+}
+exports.editClubInfo = async(req, res, next)=>{
+    console.log("kjfjkdfjk")
+    console.log(req.body)   
+     const club = await Club.findOne({userId: req.params.userId});
+     console.log(club);
+         club.title = req.body.title
+         club.body = req.body.body
+         club.file = req.file.filename
+  
+        club.save();
+              res.json({
+                status: " success",
+                 club
+              })
+              console.log(club);
+            next();
+  
+     }
+  
