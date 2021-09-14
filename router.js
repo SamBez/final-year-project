@@ -79,7 +79,7 @@ router.get('/getallclubs', jsonparsor, club.getAllClubs);
 router.get('/getclubmembers/:userId', protect.protectRoute, protect.restrictTo('club-president'),jsonparsor, club.getClubMembers);
 router.post('/studentApplyClub/:userId', jsonparsor, protect.protectRoute, protect.restrictTo('student'), club.studentApplyClub);
 router.get('/notifyCP/:userId', jsonparsor, protect.protectRoute, protect.restrictTo('club-president'), club.notifyCP);
-router.post('/approveApplicant', jsonparsor, protect.protectRoute, protect.restrictTo('club-president'), club.approveApplicant);
+router.post('/rejectApplicant/:userId', jsonparsor, protect.protectRoute, protect.restrictTo('club-president'), club.declineApplicant);
 router.get('/myClubs/:userId', jsonparsor, protect.protectRoute, protect.restrictTo('student'), club.myClubs)
 router.post('/approveApplicant/:userId', jsonparsor, protect.protectRoute ,protect.restrictTo('club-president'), club.approveApplicant);
 router.delete('/deleteMember/:userId', jsonparsor, protect.protectRoute, protect.restrictTo('club-president'), club.deleteMember);

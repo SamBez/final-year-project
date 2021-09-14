@@ -3,7 +3,7 @@ const mongoose = require('mongoose')
 const applicantSchema = new mongoose.Schema({
     clubId: {
         type: String,
-        required: true
+        required: true 
     },
     userId: {
         type: String,
@@ -14,6 +14,10 @@ const applicantSchema = new mongoose.Schema({
     },
     WhyThisClub:{
         type: String
+    },
+    rejected:{
+        type: Boolean,
+        default: false
     }
 })
 

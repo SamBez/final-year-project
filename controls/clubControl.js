@@ -136,7 +136,7 @@ exports.notifyCP = async (req, res, next)=>{
         }
         else{
             let applicantUsers = applicants.map(async id => await User.findById(id.userId))
-            const users = Promise.all(applicantUsers);
+            const users =  await Promise.all(applicantUsers);
             console.log(users);
             res.json({
                 status: 'success',
@@ -163,21 +163,47 @@ exports.notifyCP = async (req, res, next)=>{
 exports.approveApplicant = async(req, res, next)=>{
     const clubs = await Club.findOne({userId: req.params.userId})
     console.log("found club "+ clubs)
-     const approvedApplicant = await User.findOne({_id: req.body.userId})
+     const approvedApplicant = await User.findOne({_id: req.body.aid})
      approvedApplicant.clubId = clubs._id;
      approvedApplicant.save();
     const member = req.body.userId
     clubs.members.push(member);
     clubs.save();
-    await Applicant.findOneAndRemove({userId: req.body.userId});
+    await Applicant.findOneAndDelete({userId: req.body.aid});
     res.json({
         status: 'success',
-        message: 'saved.'
+        message: 'saved.',
+        clubs
     });
     next();
 }
 exports.declineApplicant = async(req, res, next)=>{
-     
+    const user = await Applicant.findOne({userId: req.params.id});
+    if (!user){
+        res.json({
+            status: 'failure',
+            message:'User not found'
+        });
+    }
+    else{
+        user.rejected = true
+        user.save
+        res.json({
+            status: 'success',
+            message: " Applicant has been rejected.",
+            user
+        });
+    }
+    
+    const my = clubArray.map( async id =>  await Club.findById( id))
+    console.log(my)
+
+    const myclubs = await Promise.all(my);
+    res.json({
+        status: 'success',
+        myclubs
+    });
+    next();
 }
 
 exports.myClubs = async(req, res, next)=>{
