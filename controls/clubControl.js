@@ -9,15 +9,13 @@ exports.addNewClub = async(req, res, next)=>{
     console.log(" New Club")
     const club = {
         clubname: req.body.clubname,
-        logo: {
-            data:  fs.readFileSync( req.file.path),
-            contentType: 'image/jpg/png'
-        },
+        logo: req.file.filename,
         club_description: req.body.club_description,
         maxIntake: req.body.maxIntake,
         recruiting: req.body.recruiting,
         userId: req.params.userId,
-        members: req.body.members
+        members: req.body.members,
+        createdClub: true
 
     }
     console.log(club);
@@ -58,11 +56,18 @@ exports.applyToClub = async(req, res, next)=>{
 
 exports.getAllClubs = async (req, res, next)=>{
     const clubs = await Club.find({});
+    const president = clubs.map(async id=>{
+            await User.findById(id.userId)
+    })
+    const presidents = await Promise.all(president)
+     console.log(presidents)
     res.json({
        status: 'success',
-       clubs
+       clubs,
+       presidents
     })
     console.log(clubs);
+    console.log("Club p"+ presidents);
     next();
 }
 
@@ -70,10 +75,18 @@ exports.getClubMembers = async(req, res, next)=>{
     const club = await Club.findOne({userId: req.params.userId});
     console.log(club)
     const members = club.members;
+    if(members){
     res.json({
         status: 'success',
         members
     })
+}
+else{
+    res.json({
+        status: 'failure',
+        message: 'No members in this club'
+    })
+}
     next();
     
 }
@@ -94,7 +107,9 @@ exports.studentApplyClub = async (req, res, next)=>{
         department: req.body.department,
         WhyThisClub: req.body.WhyThisClub
     }
+    //console.log(data);
     const alreadyApplied = await Applicant.findOne({userId: req.params.userId, clubId: req.body.clubId});
+    console.log("already created"+ alreadyApplied);
     if (!alreadyApplied){
         const newApplicant = await Applicant.create(data);
         if(newApplicant){
@@ -103,6 +118,7 @@ exports.studentApplyClub = async (req, res, next)=>{
                 message: " you have successfuly applied to the club.", 
                 newApplicant
             })
+            console.log(newApplicant)
         }
         else{
             res.json({
@@ -112,8 +128,9 @@ exports.studentApplyClub = async (req, res, next)=>{
         }
     }
     else{
+        console.log(alreadyApplied);
         res.json({
-            status: 'failure',
+            status: 'failed',
             message: 'You have already applied to this Club.'
         })
     }
@@ -122,11 +139,15 @@ exports.studentApplyClub = async (req, res, next)=>{
 }
 
 exports.notifyCP = async (req, res, next)=>{
-    const theClub = await Club.findOne({userId: req.params.userId});
-   console.log(theClub);
 
-    const applicants = await  Applicant.find({clubId: theClub._id});
-
+    const theClub = await Club.find({});
+     console.log(theClub)
+    const users = theClub.filter(elt => elt.userId[0]._id == req.params.userId)
+console.log( users.userId);
+    if(users){
+  // console.log(theClub);
+    const applicants = await  Applicant.find({clubId: users.userId[0]._id});
+  console.log("applicant " + applicants)
      if(applicants.length == 0){
 
             res.json({
@@ -143,8 +164,14 @@ exports.notifyCP = async (req, res, next)=>{
                 users
             })
         }
+    }
     
-
+else{
+    res.json({
+        status: 'failure',
+        message:'No user found'
+    })
+}
     /*if(!applicants){
         res.json({
             status: 'failure',
@@ -212,7 +239,7 @@ exports.myClubs = async(req, res, next)=>{
     let clubArray = user.clubId
     console.log(clubArray)
     
-    const my = clubArray.map( async id =>  await Club.findById( id))
+    const my = clubArray.map( async id =>  await Club.findById(id))
     console.log(my)
 
     const myclubs = await Promise.all(my);
@@ -225,7 +252,9 @@ exports.myClubs = async(req, res, next)=>{
 
 exports.getClubInfo = async(req, res, next)=>{
 
-     const club = await Club.findOne({userId: req.params.userId})
+     const clubs = await Club.find({})
+     const club = clubs.filter(elt => elt.userId[0]._id == req.params.userId)
+
    if(!club){
        
     res.json({

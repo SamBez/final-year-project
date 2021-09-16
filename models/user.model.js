@@ -58,6 +58,8 @@ const crypto = require('crypto');
         type: Date,
         select: false
     },
+    createdClub:{type: Boolean,
+                default: false},
     role: {
         type: String,
         enum: ['super-admin', 'student', 'forum-admin', 'material-admin', 'info-director', 'club-president'],

@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const ServError = require("../utils/ServerError");
 const nodemailer = require("nodemailer");
 const sendmail = require("../email");
+const Club = require('../models/club/clubs.model')
 const crypto = require("crypto");
 
 exports.login = async (req, res, next) => {
@@ -56,10 +57,20 @@ exports.login = async (req, res, next) => {
       user.passwordModified == false
     ) {
       if(user.password == password){
-
+        const token = jwt.sign(
+          {
+            id: user._id,
+            email: user.email,
+          },
+          "secret",
+          {
+            expiresIn: "10d",
+          }
+        );
         res.json({
           message: "You need to change password !",
           user,
+          token
       });
       next();
     }
